@@ -8,12 +8,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-
+// Cette classe représente une ligne de l'inventaire (un DVD dans un magasin)
 @Entity
 public class Inventory {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "inventory_id")
+  @Id // Indique que c'est la clé primaire
+  @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-incrémentation de l'ID
+  @Column(name = "inventory_id") // Nom de la colonne SQL associée
   private Integer inventoryId;
 
   @Column(name = "film_id")
@@ -25,6 +25,8 @@ public class Inventory {
   @Column(name = "last_update")
   private Timestamp lastUpdate;
 
+  // Getters et Setters
+  // Permettent de lire ou modifier les valeurs des attributs (encapsulation)
   public Integer getInventoryId() {
     return inventoryId;
   }

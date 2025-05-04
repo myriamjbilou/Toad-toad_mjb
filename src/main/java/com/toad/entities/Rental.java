@@ -6,12 +6,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+// Cette classe représente une location de DVD (entité liée à la table "rental")
 @Entity
 public class Rental {
+
+    // Clé primaire auto-incrémentée (générée par la BDD)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "rental_id")
-    private Integer rental_id; // BIGINT
+    private Integer rental_id; 
 
     @Column(name = "rental_date")
     private String rental_date;
@@ -23,15 +26,17 @@ public class Rental {
     private Integer customer_id;
 
     @Column(name = "return_date")
-    private String returnDate; // Year is typically handled as Integer
+    private String returnDate; 
 
     @Column(name = "staff_id")
-    private Integer staff_id; // TINYINT
+    private Integer staff_id; 
 
     @Column(name = "last_update")
     private String last_update;
 
     // Getters and Setters
+    // Permettent d'accéder aux champs privés et de les modifier proprement
+    
     public Integer getRentalId() {
         return rental_id;
     }

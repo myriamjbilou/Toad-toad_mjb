@@ -5,21 +5,24 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
  
-@Entity // This tells Hibernate to make a table out of this class
+@Entity // Indique à JPA (via Hibernate) que cette classe représente une table dans la base de données
 public class Director {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer director_id; // BIGINT
+
+    @Id // Clé primaire de la table
+    @GeneratedValue(strategy = GenerationType.AUTO) // L'ID sera généré automatiquement
+    private Integer director_id;  // Identifiant unique du réalisateur (clé primaire)
  
     private String nom;
  
     private String prenom;
  
-    private String date_naissance; // Year is typically handled as Integer
+    private String date_naissance; 
  
-    private String nationnalite; // TINYINT
+    private String nationnalite; 
  
     // Getters and Setters
+    // Utilisés pour accéder ou modifier les attributs privés.
+    // Obligatoires pour que JPA puisse lire/écrire les valeurs dans la base.
     public Integer getdirector_id() {
         return director_id;
     }

@@ -1,5 +1,6 @@
 package com.toad.controllers;
 
+// Importation des classes nécessaires pour gérer les dates, listes et maps
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -19,13 +20,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.toad.entities.Rental;
 import com.toad.repositories.RentalRepository;
 
+// Cette classe est un contrôleur qui va gérer les routes liées aux locations (rental)
 @Controller
-@RequestMapping(path = "/toad/rental")
+@RequestMapping(path = "/toad/rental")  // Préfixe d'URL commun à toutes les méthodes de ce contrôleur
 public class RentalController {
 
+    // Injection du repository pour accéder à la base de données des locations
     @Autowired
     private RentalRepository rentalRepository;
 
+    // Méthode qui permet de mettre à jour une location existante
     @PutMapping(path = "/update/{rental_id}")
     public @ResponseBody String updateRental(
             @PathVariable Integer rental_id,
@@ -36,10 +40,12 @@ public class RentalController {
             @RequestParam Integer staff_id,
             @RequestParam String last_update) {
 
+        // On recherche la location à partir de son ID
         Rental rental = rentalRepository.findById(rental_id).orElse(null);
         String message_retour;
 
         if (rental != null) {
+            // Si on la trouve, on met à jour ses champs
             rental.setRentalId(rental_id);
             rental.setRentalDate(rental_date);
             rental.setInventoryId(inventory_id);
@@ -47,15 +53,16 @@ public class RentalController {
             rental.setReturnDate(return_date);
             rental.setStaffId(staff_id);
             rental.setLastUpdate(last_update);
-            rentalRepository.save(rental);
+            rentalRepository.save(rental); // Sauvegarde dans la base
 
             message_retour = "Rental Updated";
         } else {
-            message_retour = "Rental not found";
+            message_retour = "Rental not found"; // Si non trouvée
         }
         return message_retour;
     }
 
+    // Méthode pour créer une nouvelle location (POST)
     @PostMapping(path = "/add")
     public @ResponseBody String createRental(
             @RequestParam String rental_date,
@@ -65,8 +72,9 @@ public class RentalController {
             @RequestParam Integer staff_id,
             @RequestParam String last_update) {
 
+        // Création d'une nouvelle instance de Rental
         Rental newRental = new Rental();
-        newRental.setRentalId(0);
+        newRental.setRentalId(0); // Laisser la base générer l'ID
         newRental.setRentalDate(rental_date);
         newRental.setInventoryId(inventory_id);
         newRental.setCustomerId(customer_id);
@@ -74,19 +82,19 @@ public class RentalController {
         newRental.setStaffId(staff_id);
         newRental.setLastUpdate(last_update);
 
-        rentalRepository.save(newRental);
+        rentalRepository.save(newRental); // On sauvegarde en BDD
 
         return "Location créée avec succès !";
     }
 
-    // Nouveau endpoint /rent qui crée une location sans vérification préalable
+    // Endpoint spécifique pour créer une location (sans return date)
     @PostMapping(path = "/rent")
     public ResponseEntity<String> rentDVD(
             @RequestParam Integer inventory_id,
             @RequestParam Integer customer_id) {
         try {
 
-            // Vérification : ce DVD est-il déjà loué ?
+            // On vérifie si ce DVD est déjà loué (non retourné)
             List<Rental> rentals = rentalRepository.findByInventoryIdAndReturnDateIsNull(inventory_id);
             if (!rentals.isEmpty()) {
                 return ResponseEntity.status(409).body("DVD déjà loué.");
@@ -95,15 +103,16 @@ public class RentalController {
             // Récupère la date et l'heure actuelles au format ISO
             String now = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
 
+            // On crée une nouvelle location
             Rental rental = new Rental();
             rental.setRentalDate(now);
             rental.setInventoryId(inventory_id);
             rental.setCustomerId(customer_id);
-            rental.setReturnDate(null); // Le DVD n'est pas encore retourné
-            rental.setStaffId(1); // Valeur par défaut (à adapter si nécessaire)
+            rental.setReturnDate(null); // Le DVD n'est pas encore retourné (location en cours)
+            rental.setStaffId(1); // ID Valeur par défaut 
             rental.setLastUpdate(now);
 
-            rentalRepository.save(rental);
+            rentalRepository.save(rental); // Sauvegarde en base
 
             return ResponseEntity.ok("DVD loué avec succès !");
         } catch (Exception e) {
@@ -112,6 +121,7 @@ public class RentalController {
         }
     }
 
+    // Suppression d'une location via son ID
     @DeleteMapping(path = "/delete/{id}")
     public @ResponseBody String deleteRental(@PathVariable Integer id) {
         String message;
@@ -124,15 +134,19 @@ public class RentalController {
         return message;
     }
 
+    // Récupère toutes les locations
     @GetMapping(path = "/all")
     public @ResponseBody Iterable<Rental> getAllUsers() {
         return rentalRepository.findAll();
     }
 
+    // Récupère une location précise avec son ID
     @GetMapping(path = "/getById")
     public @ResponseBody Rental getRentalById(@RequestParam Integer id) {
         Rental rental = rentalRepository.findById(id).orElse(null);
-        if (rental != null) {
+
+        // verifie si la location existe (pas null)
+        if (rental != null) { 
             Rental filteredRental = new Rental();
             filteredRental.setRentalId(rental.getRentalId());
             filteredRental.setRentalDate(rental.getRentalDate());
@@ -143,6 +157,6 @@ public class RentalController {
             filteredRental.setLastUpdate(rental.getLastUpdate());
             return filteredRental;
         }
-        return null;
+        return null; // Si aucune location trouvée, retourne null
     }
 }

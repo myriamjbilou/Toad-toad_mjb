@@ -23,39 +23,42 @@ import com.toad.repositories.InventoryRepository;
 @Controller
 @RequestMapping(path = "/toad/inventory")
 public class InventoryController {
-    @Autowired
+    @Autowired // Injecte automatiquement l'objet InventoryRepository
     private InventoryRepository inventoryRepository;
-    @Autowired
+
+    @Autowired // Injecte également le repository spécialisé pour les inventaires disponibles
     private InventoryDisponibleRepository inventoryDisponibleRepository;
 
+    // Ajoute un nouvel inventaire dans la base
     @PostMapping(path = "/available/add")
     public @ResponseBody String addNewInventory(
             @RequestParam Integer film_id,
             @RequestParam Integer store_id,
             @RequestParam java.sql.Timestamp last_update) {
 
+        // Création d'un nouvel objet Inventory
         Inventory inventory = new Inventory();
         inventory.setFilmId(film_id);
         inventory.setStoreId(store_id);
         inventory.setLastUpdate(last_update);
 
+        // Enregistrement dans la base de données
         inventoryRepository.save(inventory);
         return "Inventaire Sauvegardé : " + +inventory.getInventoryId();
     }
 
-    // film_id:1
-    // store_id:1
-    // last_update:2024-01-01 00:00:00.0
-
+    // Récupère tous les inventaires existants
     @GetMapping(path = "/all")
     public @ResponseBody Iterable<Inventory> getAllInventories() {
         return inventoryRepository.findAll();
     }
 
+    // Récupère un inventaire en particulier à partir de son identifiant
     @GetMapping(path = "/getById")
     public @ResponseBody Inventory getInventoryById(@RequestParam Integer id) {
         Inventory inventory = inventoryRepository.findById(id).orElse(null);
         if (inventory != null) {
+            // On crée un nouvel objet pour ne renvoyer que les infos utiles
             Inventory filteredInventory = new Inventory();
             filteredInventory.setInventoryId(inventory.getInventoryId());
             filteredInventory.setFilmId(inventory.getFilmId());
@@ -66,6 +69,7 @@ public class InventoryController {
         return null;
     }
 
+    // Met à jour les informations d'un inventaire existant
     @PutMapping(path = "/update/{id}")
     public @ResponseBody String updateInventory(
             @PathVariable Integer id,
@@ -90,22 +94,21 @@ public class InventoryController {
         return message;
     }
 
-    // film_id:1
-    // store_id:1
-    // last_update:2024-01-01 00:00:00.0
-
+    // Supprime un inventaire par son identifiant
     @DeleteMapping(path = "/delete/{id}")
     public @ResponseBody String deleteInventory(@PathVariable Integer id) {
         inventoryRepository.deleteById(id);
         return "Inventaire Supprimé";
     }
 
+    // Récupère tous les inventaires disponibles (c’est-à-dire non loués)
     @GetMapping("/available")
     @ResponseBody
     public List<Map<String, Object>> getAvailableInventory() {
         List<Object[]> results = inventoryRepository.findAvailableInventory();
         List<Map<String, Object>> response = new ArrayList<>();
 
+        // On transforme chaque ligne de résultat en un dictionnaire clé-valeur
         for (Object[] row : results) {
             Map<String, Object> item = new HashMap<>();
             item.put("inventoryId", row[0]);
@@ -118,6 +121,7 @@ public class InventoryController {
         return response;
     }
 
+    // Version enrichie de l'inventaire disponible avec les titres des films
     @GetMapping("/available/details")
     public @ResponseBody List<Map<String, Object>> getAvailableInventoryWithDetails() {
         List<Object[]> rawResults = inventoryDisponibleRepository.findAvailableInventoryWithFilmDetails();
@@ -134,11 +138,9 @@ public class InventoryController {
         }
 
         return result;
+        
     }
-
-    /**
-     * Méthode utilitaire pour convertir dynamiquement un objet en Integer.
-     */
+    // Méthode utilitaire interne qui convertit dynamiquement un objet numérique en Integer
     private Integer convertToInteger(Object value) {
         if (value instanceof Byte) {
             return ((Byte) value).intValue();

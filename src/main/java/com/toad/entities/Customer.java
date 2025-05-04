@@ -1,5 +1,6 @@
 package com.toad.entities;
 
+// Importation des annotations nécessaires pour la persistance JPA (mapping objet-relationnel)
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -7,16 +8,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-// On précise explicitement la table "customer"
+// Cette classe représente une entité JPA liée à la table "customer" dans la base de données
 @Entity
 @Table(name = "customer")
 public class Customer {
 
+    // Clé primaire de l'entité, auto-incrémentée (IDENTITY = auto-incrément côté
+    // BDD)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "customer_id")
     private Integer customerId;
 
+    // Identifiant du magasin associé au client
     @Column(name = "store_id")
     private Integer storeId;
 
@@ -32,23 +36,29 @@ public class Customer {
     @Column(name = "address_id")
     private Integer addressId;
 
+    // État d’activation du client : 1 = actif, 0 = inactif
     @Column(name = "active")
     private int active;
 
+    // Date de création du client (java.sql.Timestamp pour coller au type SQL)
     @Column(name = "create_date")
     private java.sql.Timestamp createDate;
 
     @Column(name = "last_update")
     private java.sql.Timestamp lastUpdate;
 
-    // Comme la colonne est un VARCHAR(25), on utilise String côté Java
+    // Mot de passe du client (type VARCHAR en base, donc String en Java)
     @Column(name = "password")
     private String password;
 
     @Column(name = "age")
     private Integer age;
 
-    // ----- Getters / Setters -----
+    // Getters et setters:
+    // Permettent de lire (get) ou modifier (set) les champs privés de l'entité,
+    // tout en respectant le principe d'encapsulation.
+    // Obligatoires pour que JPA puisse gérer automatiquement les données de la
+    // base.
 
     public Integer getCustomerId() {
         return customerId;

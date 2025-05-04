@@ -9,12 +9,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+// Cette classe représente l'entité "film" et sera liée à la table "film" dans la base de données
 @Entity
 @Table(name = "film")
 public class Film {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id // Définit la clé primaire de l'entité
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // L'ID est généré automatiquement (auto-incrément)
     @Column(name = "film_id")
     private Integer filmId;
 

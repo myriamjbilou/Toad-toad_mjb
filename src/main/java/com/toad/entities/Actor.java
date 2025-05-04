@@ -1,12 +1,18 @@
+// Indique que cette classe fait partie du package "entities" (donc c’est un modèle lié à la base de données)
 package com.toad.entities;
 
+// Importation des annotations JPA (Jakarta Persistence API) pour mapper la classe à une table en base de données
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+// Annotation qui indique que cette classe représente une table en base de données
 @Entity
 public class Actor {
+
+    // Clé primaire de la table Actor. Cette valeur est générée automatiquement
+    // (auto-incrémentée)
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer actor_id;

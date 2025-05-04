@@ -9,10 +9,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+// Cette classe représente l'entité "staff" de la base de données
 @Entity
 @Table(name = "staff")
 public class Staff {
 
+    // Clé primaire, générée automatiquement par la base (auto-incrément)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "staff_id")

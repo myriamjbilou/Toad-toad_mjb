@@ -1,3 +1,4 @@
+// Contrôleur Spring Boot pour gérer les opérations liées à l'entité Film
 package com.toad.controllers;
 
 import java.sql.Timestamp;
@@ -20,13 +21,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.toad.entities.Film;
 import com.toad.repositories.FilmRepository;
 
-@Controller
-@RequestMapping("/toad/film")
+@Controller // Déclare que cette classe est un contrôleur Spring
+@RequestMapping("/toad/film") // Définit le préfixe commun à toutes les routes de ce contrôleur
 public class FilmController {
 
-    @Autowired
+    @Autowired // Injection automatique du repository permettant d'accéder aux données Film
     private FilmRepository filmRepository;
 
+    // Méthode pour ajouter un nouveau film dans la base
     @PostMapping("/add")
     public @ResponseBody String addNewFilm(
             @RequestParam String title,
@@ -39,7 +41,7 @@ public class FilmController {
             @RequestParam Integer length,
             @RequestParam Double replacementCost,
             @RequestParam String rating,
-            @RequestParam String lastUpdate // format attendu "yyyy-MM-dd HH:mm:ss"
+            @RequestParam String lastUpdate
     ) {
         System.out.println("=== ADD NEW FILM ===");
         System.out.println("Paramètres reçus:");
@@ -55,16 +57,18 @@ public class FilmController {
         System.out.println("rating: " + rating);
         System.out.println("lastUpdate: " + lastUpdate);
 
+        // Conversion de la date en format Timestamp utilisable par la base
         Timestamp ts;
         try {
             ts = Timestamp.valueOf(lastUpdate);
             System.out.println("Conversion lastUpdate réussie: " + ts.toString());
         } catch (IllegalArgumentException e) {
             System.err.println("Erreur de conversion de lastUpdate: " + e.getMessage());
-            ts = new Timestamp(System.currentTimeMillis());
+            ts = new Timestamp(System.currentTimeMillis()); // Si erreur, on prend la date actuelle
             System.out.println("Utilisation du timestamp courant: " + ts.toString());
         }
 
+        // Création de l'objet Film et remplissage de ses attributs
         Film film = new Film();
         film.setTitle(title);
         film.setDescription(description);
@@ -79,9 +83,7 @@ public class FilmController {
         film.setReplacementCost(replacementCost);
         film.setRating(rating);
         film.setLastUpdate(ts);
-        // Si vous ne souhaitez pas gérer specialFeatures, on peut le laisser à sa
-        // valeur par défaut dans la BDD
-        // film.setSpecialFeatures("None");
+        
 
         System.out.println("Film à ajouter: " + film.getTitle());
         try {
@@ -92,9 +94,13 @@ public class FilmController {
             e.printStackTrace();
             throw e;
         }
+
+        // Sauvegarde en base
+        filmRepository.save(film);
         return "Film Sauvegardé";
     }
 
+    // Méthode pour mettre à jour un film existant
     @PutMapping("/update/{id}")
     public @ResponseBody String updateFilm(
             @PathVariable Integer id,
@@ -108,20 +114,25 @@ public class FilmController {
             @RequestParam Integer length,
             @RequestParam Double replacementCost,
             @RequestParam String rating,
-            @RequestParam String lastUpdate // format "yyyy-MM-dd HH:mm:ss"
+            @RequestParam String lastUpdate
     ) {
-        System.out.println("=== UPDATE FILM ===");
+        System.out.println("UPDATE FILM");
         System.out.println("Film ID: " + id);
+
+        // Vérifie que le film existe avant de le modifier
         if (!filmRepository.existsById(id)) {
+
             System.out.println("Film non trouvé pour mise à jour");
             return "Film non trouvé";
         }
         Film film = filmRepository.findById(id).orElse(null);
         if (film == null) {
             System.out.println("Film non trouvé (null)");
+
             return "Film non trouvé";
         }
 
+        // Mise à jour des champs du film
         film.setTitle(title);
         film.setDescription(description);
         film.setReleaseYear(releaseYear);
@@ -136,6 +147,7 @@ public class FilmController {
         film.setRating(rating);
 
         System.out.println("lastUpdate reçu (update): " + lastUpdate);
+        // Conversion de la date de mise à jour
         Timestamp ts;
         try {
             ts = Timestamp.valueOf(lastUpdate);
@@ -148,6 +160,7 @@ public class FilmController {
         film.setLastUpdate(ts);
 
         try {
+            // Enregistrement du film modifié
             filmRepository.save(film);
             System.out.println("Film mis à jour avec succès: " + film.getTitle());
             return "Film Mis à jour";
@@ -158,9 +171,10 @@ public class FilmController {
         }
     }
 
+    // Méthode pour supprimer un film via son ID
     @DeleteMapping("/delete/{id}")
     public @ResponseBody String deleteFilm(@PathVariable Integer id) {
-        System.out.println("=== DELETE FILM ===");
+        System.out.println("DELETE FILM");
         System.out.println("Film ID: " + id);
         if (filmRepository.existsById(id)) {
             filmRepository.deleteById(id);
@@ -172,22 +186,26 @@ public class FilmController {
         }
     }
 
+    // Récupère tous les films dans la base
     @GetMapping("/all")
     public @ResponseBody Iterable<Film> getAllFilms() {
         return filmRepository.findAll();
     }
 
+    // Récupère un film en particulier par son identifiant
     @GetMapping("/getById")
     public @ResponseBody Film getFilmById(@RequestParam Integer id) {
         return filmRepository.findById(id).orElse(null);
     }
 
+    // Récupère une liste enrichie de films avec des informations liées à l'inventaire
     @GetMapping("/allWithInventory")
     @ResponseBody
-    public List<Map<String, Object>> getAllFilmsWithInventory() {
-        
+    public List<Map<String, Object>> getAllFilmsWithInventory() { 
         List<Object[]> rawResults = filmRepository.findAllFilmsWithInventory();
         List<Map<String, Object>> finalList = new ArrayList<>();
+
+        // Transformation des données récupérées en liste de maps (clé-valeur)
         for (Object[] row : rawResults) {
             Map<String, Object> map = new HashMap<>();
             map.put("inventoryId", row[0]);
